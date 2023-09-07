@@ -1,13 +1,34 @@
 from tkinter import *
 from tkinter import messagebox
+from random import choice, randint, shuffle
+import pyperclip
 
 
 # Day 29 - password manager
 # - Password Generator - #
+def generate_password():
+    password_entry.delete(0, END)
+
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+               'v', 'w', 'x', 'y', 'z']
+    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
+
+    pwd_letters = [choice(letters) for _ in range(randint(8, 10))]
+    pwd_numbers = [choice(numbers) for _ in range(randint(2, 4))]
+    pwd_symbols = [choice(symbols) for _ in range(randint(2, 4))]
+
+    pwd_list = pwd_letters + pwd_symbols + pwd_numbers
+    shuffle(pwd_list)
+
+    generated_password = "".join(pwd_list)
+
+    password_entry.insert(END, generated_password)
+
+
 # - Save Password - #
 
 def save_password():
-
     website = website_entry.get()
     email = email_entry.get()
     password = password_entry.get()
@@ -27,11 +48,11 @@ def save_password():
         if confirmed:
             with open("vault.txt", "a") as vault_file:
                 vault_file.write(f"{website} | {email} | {password}\n")
+                # Copying saved password to clipboard
+                pyperclip.copy(password)
                 website_entry.delete(0, END)
                 # email_entry.delete(0, END)
                 password_entry.delete(0, END)
-
-
 
 
 # - UI Setup - #
@@ -70,7 +91,7 @@ password_entry = Entry(width=34)
 password_entry.grid(row=3, column=1)
 
 # Buttons
-generate_pwd_button = Button(text="Generate Password")
+generate_pwd_button = Button(text="Generate Password", command=generate_password)
 generate_pwd_button.grid(row=3, column=2)
 add_button = Button(text="Store Password", width=44, command=save_password)
 add_button.grid(row=4, column=1, columnspan=2)
