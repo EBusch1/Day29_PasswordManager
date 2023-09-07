@@ -1,10 +1,46 @@
 from tkinter import *
+from tkinter import messagebox
+
 
 # Day 29 - password manager
 # - Password Generator - #
 # - Save Password - #
+
+def save_password():
+
+    website = website_entry.get()
+    email = email_entry.get()
+    password = password_entry.get()
+
+    # Checks if any fields are empty and provides specific field error.
+    if len(email) == 0:
+        messagebox.showerror(title="Empty email/username", message="Please enter a valid email/username")
+    elif len(website) == 0:
+        messagebox.showerror(title="Empty URL/Name", message="Please enter a valid URL/Name")
+    elif len(password) == 0:
+        messagebox.showerror(title="Empty password", message="Please enter a valid password")
+    else:
+        confirmed = messagebox.askokcancel(title=f"Confirmation for: {website}",
+                                           message=f"Confirm credentials and click "
+                                                   f"'Okay':\nUsername: {email}"
+                                                   f"\nPassword: {password}")
+        if confirmed:
+            with open("vault.txt", "a") as vault_file:
+                vault_file.write(f"{website} | {email} | {password}\n")
+                website_entry.delete(0, END)
+                # email_entry.delete(0, END)
+                password_entry.delete(0, END)
+
+
+
+
 # - UI Setup - #
 
+# Initialize default email
+with open("email.txt", "r") as email_file:
+    user_email = email_file.read()
+
+# Create window
 window = Tk()
 window.title("My Password Manager")
 window.config(padx=50, pady=50)
@@ -26,16 +62,17 @@ password_label.grid(row=3, column=0)
 # Entries
 website_entry = Entry(width=52)
 website_entry.grid(row=1, column=1, columnspan=2)
+website_entry.focus()
 email_entry = Entry(width=52)
 email_entry.grid(row=2, column=1, columnspan=2)
+email_entry.insert(END, user_email)
 password_entry = Entry(width=34)
 password_entry.grid(row=3, column=1)
 
 # Buttons
 generate_pwd_button = Button(text="Generate Password")
 generate_pwd_button.grid(row=3, column=2)
-add_button = Button(text="Store Password", width=44)
+add_button = Button(text="Store Password", width=44, command=save_password)
 add_button.grid(row=4, column=1, columnspan=2)
-
 
 window.mainloop()
