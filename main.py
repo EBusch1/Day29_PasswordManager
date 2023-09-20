@@ -4,11 +4,44 @@ from tkinter import messagebox
 from random import choice, randint, shuffle
 import pyperclip
 import json
+import cryptocode
+import secrets
 
 
 # Day 29 - password manager
+# - Encryption Key Generator - #
+
+# Checks if you have a key already, if you don't it will make one.
+try:
+
+    with open("key.txt", "r") as encryption_key:
+        key = encryption_key.read()
+
+
+except FileNotFoundError:
+    with open("key.txt", "w") as encryption_key:
+        new_key = secrets.token_hex(10)
+        encryption_key.write(str(new_key))
+
+    with open("key.txt", "r") as encryption_key:
+        key = encryption_key.read()
+
+
+# - Password Encryption / Decryption - #
+
+def encrypt_password(pwd):
+    encrypted_pwd = cryptocode.encrypt(pwd, key)
+    return encrypted_pwd
+
+
+def decrypt_password(pwd):
+    decrypted_pwd = cryptocode.decrypt(pwd, key)
+    return decrypted_pwd
+
+
 # - Password Generator - #
 def generate_password():
+    # Makes a strong password
     password_entry.delete(0, END)
 
     letters = string.ascii_letters
@@ -33,10 +66,11 @@ def save_password():
     website = website_entry.get()
     email = email_entry.get()
     password = password_entry.get()
+    password = encrypt_password(pwd=password)
     new_creds = {
         website.upper(): {
             "email": email,
-            "password": password
+            "password": str(password)
         }
     }
 
@@ -92,6 +126,7 @@ def find_credentials():
         if website in vault_contents:
             email = vault_contents[website]["email"]
             password = vault_contents[website]["password"]
+            password = decrypt_password(password)
             messagebox.showinfo(title=website, message=f"Email: {email}\nPassword: {password}")
         else:
             messagebox.showerror(title="Error", message=f"No details exist for {website}.")
